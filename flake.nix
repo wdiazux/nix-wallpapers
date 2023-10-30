@@ -15,17 +15,12 @@
     };
   };
 
-  outputs = inputs: let
-    lib = inputs.snowfall-lib.mkLib {
+  outputs = inputs:
+    inputs.snowfall-lib.mkFlake {
       inherit inputs;
       src = ./.;
 
-      snowfall = {
-        namespace = "plusultra";
-      };
-    };
-  in
-    lib.mkFlake {
+      snowfall.namespace = "plusultra";
       alias.packages.default = "wallpapers";
 
       outputs-builder = channels: {
