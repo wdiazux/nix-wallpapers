@@ -21,19 +21,12 @@
       src = ./.;
 
       snowfall = {
-        meta = {
-          name = "plusultra";
-          title = "Plus Ultra";
-        };
-
         namespace = "plusultra";
       };
     };
   in
     lib.mkFlake {
-      channels-config = {
-        allowUnfree = true;
-      };
+      alias.packages.default = "wallpapers";
 
       outputs-builder = channels: {
         formatter = channels.nixpkgs.alejandra;
