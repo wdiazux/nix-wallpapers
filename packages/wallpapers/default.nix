@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  images = builtins.attrNames (builtins.readDir ./wallpapers);
+  images = builtins.attrNames (builtins.readDir ./images);
   mkWallpaper = name: src: let
     fileName = builtins.baseNameOf src;
     pkg = pkgs.stdenvNoCC.mkDerivation {
@@ -29,7 +29,7 @@
       # eg. mywallpaper.png -> mywallpaper
       name = lib.snowfall.path.get-file-name-without-extension image;
     in
-      acc // {"${name}" = mkWallpaper name (./wallpapers + "/${image}");})
+      acc // {"${name}" = mkWallpaper name (./images + "/${image}");})
     {}
     images;
   installTarget = "$out/share/wallpapers";
@@ -42,7 +42,7 @@
 in
   pkgs.stdenvNoCC.mkDerivation {
     name = "plusultra-wallpapers";
-    src = ./wallpapers;
+    src = ./images;
 
     installPhase = ''
       mkdir -p ${installTarget}
