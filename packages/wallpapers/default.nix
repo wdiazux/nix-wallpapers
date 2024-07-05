@@ -17,14 +17,15 @@
       passthru.fileName = builtins.baseNameOf src;
     };
 
-  wallpapers =
-    lib.foldl
-    (acc: image: let
+  wallpapers = builtins.listToAttrs (map (image:
+    let
       name = lib.snowfall.path.get-file-name-without-extension image;
     in
-      acc // {"${name}" = mkWallpaper name (./images + "/${image}");})
-    {}
-    images;
+      {
+        inherit name;
+        value = mkWallpaper name (./images + "/${image}");
+      }
+  ) images);
 in
   pkgs.stdenvNoCC.mkDerivation {
     pname = "plusultra-wallpapers";
