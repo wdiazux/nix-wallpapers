@@ -4,50 +4,35 @@
   ...
 }: let
   images = builtins.attrNames (builtins.readDir ./images);
-  mkWallpaper = name: src: let
-    fileName = builtins.baseNameOf src;
-    pkg = pkgs.stdenvNoCC.mkDerivation {
-      inherit name src;
-
-      dontUnpack = true;
-
-      installPhase = ''
-        cp $src $out
-      '';
-
-      passthru = {inherit fileName;};
-    };
-  in
-    pkg;
   names = builtins.map (lib.snowfall.path.get-file-name-without-extension) images;
+  installTarget = "$out/share/wallpapers";
+
+  mkWallpaper = name: src:
+    pkgs.stdenvNoCC.mkDerivation {
+      inherit name src;
+      dontUnpack = true;
+      installPhase = ''
+        install -Dm 644 $src $out
+      '';
+      passthru.fileName = builtins.baseNameOf src;
+    };
+
   wallpapers =
     lib.foldl
     (acc: image: let
-      # fileName = builtins.baseNameOf image;
-      # lib.getFileName is a helper to get the basename of
-      # the file and then take the name before the file extension.
-      # eg. mywallpaper.png -> mywallpaper
       name = lib.snowfall.path.get-file-name-without-extension image;
     in
       acc // {"${name}" = mkWallpaper name (./images + "/${image}");})
     {}
     images;
-  installTarget = "$out/share/wallpapers";
-  installWallpapers =
-    builtins.mapAttrs
-    (name: wallpaper: ''
-      cp ${wallpaper} ${installTarget}/${wallpaper.fileName}
-    '')
-    wallpapers;
 in
   pkgs.stdenvNoCC.mkDerivation {
-    name = "plusultra-wallpapers";
+    pname = "plusultra-wallpapers";
     src = ./images;
 
     installPhase = ''
       mkdir -p ${installTarget}
-
-      find * -type f -mindepth 0 -maxdepth 0 -exec cp ./{} ${installTarget}/{} ';'
+      install -Dm 644 $src/* $installTarget
     '';
 
     passthru = {inherit names;} // wallpapers;
