@@ -15,7 +15,8 @@
     };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     inputs.snowfall-lib.mkFlake {
       inherit inputs;
       src = ./.;
@@ -23,15 +24,6 @@
       snowfall.namespace = "plusultra";
       alias.packages.default = "wallpapers";
 
-      outputs-builder = channels: {
-        formatter = channels.nixpkgs.alejandra;
-
-        checks.pre-commit-check = inputs.pre-commit-hooks.lib.${channels.nixpkgs.system}.run {
-          src = ./.;
-          hooks = {
-            alejandra.enable = true;
-          };
-        };
-      };
+      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
     };
 }
