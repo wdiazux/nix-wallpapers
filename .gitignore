@@ -18,3 +18,12 @@
 
 ### Windows ###
 Thumbs.db
+
+### Claude Code ###
+.claude/
+CLAUDE.md
+docs/
+
+### NixOS ###
+result
+.direnv

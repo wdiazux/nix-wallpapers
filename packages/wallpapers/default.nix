@@ -1,21 +1,27 @@
 {
   lib,
-  pkgs,
-  namespace,
-  ...
+  stdenvNoCC,
 }:
 let
   images = builtins.attrNames (builtins.readDir ./images);
-  names = builtins.map (lib.snowfall.path.get-file-name-without-extension) images;
+
+  removeExtension =
+    name:
+    let
+      m = builtins.match "(.+)\\.[^.]+$" name;
+    in
+    if m != null then builtins.head m else name;
+
+  names = builtins.map removeExtension images;
   installTarget = "$out/share/wallpapers";
 
   mkWallpaper =
     name: src:
-    pkgs.stdenvNoCC.mkDerivation {
+    stdenvNoCC.mkDerivation {
       inherit name src;
       dontUnpack = true;
       installPhase = ''
-        install -Dm 644 $src $out
+        install -Dm 644 "$src" "$out"
       '';
       passthru.fileName = builtins.baseNameOf src;
     };
@@ -24,7 +30,7 @@ let
     map (
       image:
       let
-        name = lib.snowfall.path.get-file-name-without-extension image;
+        name = removeExtension image;
       in
       {
         inherit name;
@@ -33,22 +39,24 @@ let
     ) images
   );
 in
-pkgs.stdenvNoCC.mkDerivation {
-  pname = "${namespace}-wallpapers";
+stdenvNoCC.mkDerivation {
+  pname = "nix-wallpapers";
+  version = "0.1.0";
   src = ./images;
 
   installPhase = ''
-    mkdir -p ${installTarget}
-    install -Dm 644 $src/* ${installTarget}
+    mkdir -p "${installTarget}"
+    install -Dm 644 "$src"/* "${installTarget}"
   '';
 
   passthru = {
     inherit names;
-  } // wallpapers;
+  }
+  // wallpapers;
 
-  meta = with lib; {
+  meta = {
     description = "Some good wallpapers!";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ wdiaz ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ wdiaz ];
   };
 }
