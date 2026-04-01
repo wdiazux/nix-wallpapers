@@ -20,10 +20,11 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          wallpapers = pkgs.callPackage ./packages/wallpapers { };
         in
         {
-          wallpapers = pkgs.callPackage ./packages/wallpapers { };
-          default = pkgs.callPackage ./packages/wallpapers { };
+          inherit wallpapers;
+          default = wallpapers;
         }
       );
 

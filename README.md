@@ -11,7 +11,7 @@ Add as a flake input:
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
-    nix-wallpapers.url = "github:wdiaz/nix-wallpapers";
+    nix-wallpapers.url = "github:wdiazux/nix-wallpapers";
   };
 
   outputs = { nixpkgs, nix-wallpapers, ... }:
@@ -33,7 +33,7 @@ Add as a flake input:
 Add the pin:
 
 ```bash
-npins add github wdiaz nix-wallpapers -b main
+npins add github wdiazux nix-wallpapers -b main
 ```
 
 Then import it:
@@ -51,12 +51,27 @@ in {
 }
 ```
 
+### Nilla (with npins)
+
+If your project uses the [Nilla](https://github.com/nilla-nix/nilla) framework, set the loader to `"legacy"` so Nilla imports `default.nix` instead of auto-detecting `flake.nix`:
+
+```nix
+# In your inputs.nix loaders:
+loaders = {
+  nix-wallpapers = "legacy";
+};
+
+# Access wallpapers:
+# project.inputs.nix-wallpapers.result.wallpapers
+# project.inputs.nix-wallpapers.result.wallpapers.nixos-dark
+```
+
 ### Traditional Nix
 
 ```nix
 let
   nix-wallpapers = import (builtins.fetchTarball {
-    url = "https://github.com/wdiaz/nix-wallpapers/archive/main.tar.gz";
+    url = "https://github.com/wdiazux/nix-wallpapers/archive/main.tar.gz";
   });
 in {
   # environment.systemPackages = [ nix-wallpapers.wallpapers ];
@@ -68,8 +83,11 @@ in {
 Each wallpaper is available as its own derivation via `passthru` attributes. The attribute name is the filename without its extension:
 
 ```nix
-let
-  wallpapers = nix-wallpapers.packages.x86_64-linux.wallpapers;
+# Flake
+let wallpapers = nix-wallpapers.packages.x86_64-linux.wallpapers;
+
+# npins / Nilla
+let wallpapers = (import sources.nix-wallpapers).wallpapers;
 in {
   # Single wallpaper derivation
   my-wallpaper = wallpapers.dracula-nixos;
